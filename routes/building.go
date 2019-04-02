@@ -64,7 +64,7 @@ func BuildingByConstructionYear(client *mongo.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.TODO()
 		collection := client.Database("topos").Collection("testCollection")
-		filter := bson.D{{"CNSTRCT_YR", 2016}}
+		filter := bson.D{{"CNSTRCT_YR", 2019}}
 		var result Building
 		// var result Trainer
 
@@ -74,6 +74,7 @@ func BuildingByConstructionYear(client *mongo.Client) gin.HandlerFunc {
 		}
 		defer cur.Close(ctx)
 		for cur.Next(ctx) {
+			fmt.Println("cur: ", cur)
 			err := cur.Decode(&result)
 			if err != nil {
 				log.Fatal(err)

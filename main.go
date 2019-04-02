@@ -65,8 +65,7 @@ func main() {
 	fmt.Println("---------------- Connection to MongoDB established --------------")
 
 	// Getting collection statically because there is just one collection
-	collection := client.Database("topos").Collection("testCollection")
-	fmt.Println("collection: ", collection)
+	// collection := client.Database("topos").Collection("testCollection")
 
 	// -------------------------------  Insert Document from tutorial @TODO: retire ---------------------
 	// ash := Trainer{"Ash", 10, "Pallet Town"}
@@ -81,6 +80,8 @@ func main() {
 
 	router.GET("/", routes.NotFound())
 	router.GET("/buildings", routes.GetBuildingsData(client))
+	router.GET("/aggregate", routes.GetAggregatedValue(client))
+	router.GET("/building", routes.BuildingByConstructionYear(client))
 
 	router.Run()
 
