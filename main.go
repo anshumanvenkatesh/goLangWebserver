@@ -40,19 +40,20 @@ func main() {
 
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	client, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// Experiment with mgo driver
+	// ----------------   Experimenting with mgo driver ------------------------
 	// session, err := mgo.DialWithInfo(&mgo.DialInfo{
 	// 	Addrs: []string{"127.0.0.1:27017"},
 	// })
 	// c := session.DB("topos").C("test")
 	// fmt.Println("collection: ", c)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// ------------------ Official Mongo drivers realeased. Yay! ------------------
 
-	type Trainer struct {
+	type Trainer struct { // Sample struct used from tutorial @TODO: Retire it eventually
 		// ID   bson.ObjectId `bson:"_id,omitempty"`
 		Name string `bson:"name"`
 		Age  int32  `bson:"age"`
@@ -61,31 +62,25 @@ func main() {
 
 	// Check the connection
 	err = client.Ping(context.TODO(), nil)
-	fmt.Println("Connected to MongoDB!")
-	// dbs, err := client.ListDatabases(context.TODO())
+	fmt.Println("---------------- Connection to MongoDB established --------------")
 
-	// fmt.Println("db list: ", dbs)
+	// Getting collection statically because there is just one collection
 	collection := client.Database("topos").Collection("testCollection")
 	fmt.Println("collection: ", collection)
 
+	// -------------------------------  Insert Document from tutorial @TODO: retire ---------------------
 	// ash := Trainer{"Ash", 10, "Pallet Town"}
 	// misty := Trainer{"Misty", 10, "Cerulean City"}
 	// brock := Trainer{"Brock", 15, "Pewter City"}
-
 	// trainers := []interface{}{ash, misty, brock}
-
 	// insertManyResult, err := collection.InsertMany(context.TODO(), trainers)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-
 	// fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
 
 	router.GET("/", routes.NotFound())
-	router.GET("/trial", routes.Trial(client))
-	router.GET("/building", routes.BuildingByName(client))
-	router.GET("/buildingYear", routes.BuildingByConstructionYear(client))
-	// router.GET("/", routes.NotFound())
+	router.GET("/buildings", routes.GetBuildingsData(client))
 
 	router.Run()
 

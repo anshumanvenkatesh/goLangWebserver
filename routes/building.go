@@ -31,7 +31,7 @@ type Building struct {
 	// GEOMSOURCE string
 }
 
-var bsonMap = map[string]string{
+var bsonMap = map[string]string{ // Built for easy lookup for bson tags
 	"Bin":         "BIN",
 	"ConstYear":   "CNSTRCT_YR",
 	"Name":        "NAME",
@@ -97,13 +97,10 @@ func getTag(name string) string {
 	return x.Tag.Get("bson")
 }
 
-func Trial(client *mongo.Client) gin.HandlerFunc {
+func GetBuildingsData(client *mongo.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.TODO()
 		collection := client.Database("topos").Collection("testCollection")
-		// q := c.Request.URL.Query()
-		// params := c.Param("vals")
-		// fmt.Printf("params: ", params)
 		var building Building
 
 		if c.BindQuery(&building) == nil {
@@ -111,48 +108,16 @@ func Trial(client *mongo.Client) gin.HandlerFunc {
 		}
 
 		m := structs.Map(building)
-		// _v := structs.Values(building)
-		// queries := []bson.M{}
 		queries := bson.M{}
-
-		// fields := reflect.TypeOf(building)
-		// // values := reflect.ValueOf(building)
-		// num := fields.NumField()
-
-		// for i := 0; i < num; i++ {
-		// 	field := fields.Field(i)
-		// 	// value := values.Field(i)
-
-		// 	t := reflect.TypeOf(Building{})
-		// 	x, _ := t.FieldByName(field.Name)
-
-		// 	bsonType := x.Tag.Get("bson")
-
-		// 	// bson_type := getTag(field)
-		// 	r := reflect.ValueOf(building)
-		// 	f := reflect.Indirect(r).FieldByName(field.Name)
-		// 	query[bsonType] = f
-		// 	fmt.Println("\nfstring: ", f)
-		// 	// fmt.Println("\nfstring type: ", reflect.TypeOf(f))
-		// 	fmt.Println("\n bsonType: ", bsonType)
-		// 	fmt.Println("\n bsonType: ", bsonType)
-		// }
 
 		for k, v := range m {
 			// query[k] = v
 			fmt.Println("key: ", bsonMap[k])
 			fmt.Println("value: ", v)
 			if v != reflect.Zero(reflect.TypeOf(v)).Interface() { // Has a non NIL value
-				fmt.Println("---------------------Its non zero!!")
 				queries[bsonMap[k]] = v
 			}
 		}
-
-		// for k, v := range _v {
-		// 	// query[k] = v
-		// 	fmt.Println("key: ", k)
-		// 	fmt.Println("value: ", v)
-		// }
 
 		fmt.Println("queries: ", queries)
 		var result Building
@@ -168,7 +133,6 @@ func Trial(client *mongo.Client) gin.HandlerFunc {
 				log.Fatal(err)
 			}
 			results = append(results, result)
-			fmt.Printf("Found document: %+v\n", result)
 		}
 		if err := cur.Err(); err != nil {
 			log.Fatal(err)
