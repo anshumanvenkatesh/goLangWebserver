@@ -108,21 +108,22 @@ func GetBuildingsData(client *mongo.Client) gin.HandlerFunc {
 		}
 
 		m := structs.Map(building)
-		queries := bson.M{}
+		query := bson.M{}
 
 		for k, v := range m {
 			// query[k] = v
 			fmt.Println("key: ", bsonMap[k])
 			fmt.Println("value: ", v)
-			if v != reflect.Zero(reflect.TypeOf(v)).Interface() { // Has a non NIL value
-				queries[bsonMap[k]] = v
+			// @TODO: Need better BindQuery mechanism to filter out optional params from query
+			if v != reflect.Zero(reflect.TypeOf(v)).Interface() { // Has a non 0 or "" value
+				query[bsonMap[k]] = v
 			}
 		}
 
-		fmt.Println("queries: ", queries)
+		fmt.Println("query: ", query)
 		var result Building
 		var results = []Building{}
-		cur, err := collection.Find(ctx, queries)
+		cur, err := collection.Find(ctx, query)
 		if err != nil {
 			log.Fatal(err)
 		}
