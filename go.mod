@@ -3,6 +3,7 @@ module geoServer
 go 1.12
 
 require (
+	github.com/fatih/structs v1.1.0
 	github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3
 	github.com/gin-gonic/gin v1.3.0
 	github.com/go-stack/stack v1.8.0 // indirect

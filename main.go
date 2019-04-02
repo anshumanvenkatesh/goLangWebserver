@@ -5,20 +5,14 @@ import (
 	// "command"
 	"context"
 	"fmt"
-	// "fooserver/routes"
+	"geoServer/routes"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
+	// "go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	// "gopkg.in/mgo.v2"
 	// "gopkg.in/mgo.v2/bson"
 )
-
-// type Trainer struct {
-// 	Name string
-// 	Age  int32
-// 	City string
-// }
 
 type Building struct {
 	// _id
@@ -47,16 +41,16 @@ func main() {
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	client, err := mongo.Connect(ctx, clientOptions)
 
+	// Experiment with mgo driver
 	// session, err := mgo.DialWithInfo(&mgo.DialInfo{
 	// 	Addrs: []string{"127.0.0.1:27017"},
 	// })
+	// c := session.DB("topos").C("test")
+	// fmt.Println("collection: ", c)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// c := session.DB("topos").C("test")
-	// fmt.Println("collection: ", c)
 
 	type Trainer struct {
 		// ID   bson.ObjectId `bson:"_id,omitempty"`
@@ -65,10 +59,6 @@ func main() {
 		City string `bson:"city"`
 	}
 
-	// var result Trainer
-	// err = c.Find(bson.M{"name": "Ash"}).One(&result)
-	// fmt.Println("person from db: ", result)
-
 	// Check the connection
 	err = client.Ping(context.TODO(), nil)
 	fmt.Println("Connected to MongoDB!")
@@ -76,6 +66,7 @@ func main() {
 
 	// fmt.Println("db list: ", dbs)
 	collection := client.Database("topos").Collection("testCollection")
+	fmt.Println("collection: ", collection)
 
 	// ash := Trainer{"Ash", 10, "Pallet Town"}
 	// misty := Trainer{"Misty", 10, "Cerulean City"}
@@ -90,16 +81,11 @@ func main() {
 
 	// fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
 
-	// filter := bson.D{{"SHAPE_AREA", 1163.227668698}}
-	filter := bson.D{{"NAME", "Pupin"}}
-	var result Building
-	// var result Trainer
-
-	err = collection.FindOne(context.TODO(), filter).Decode(&result)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Found a single document: %+v\n", result.FeatCode)
+	router.GET("/", routes.NotFound())
+	router.GET("/trial", routes.Trial(client))
+	router.GET("/building", routes.BuildingByName(client))
+	router.GET("/buildingYear", routes.BuildingByConstructionYear(client))
+	// router.GET("/", routes.NotFound())
 
 	router.Run()
 

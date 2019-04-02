@@ -13,7 +13,3 @@ func NotFound() gin.HandlerFunc {
 		})
 	}
 }
-
-func haha(c *gin.Context) string {
-	return "hello"
-}
