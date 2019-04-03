@@ -22,10 +22,10 @@ type Building struct {
 	// LSTMODDATE string
 	// LSTSTATYPE string
 	// DOITT_ID   int32
-	HeightRoof  float64 `bson:"HEIGHTROOF"`
-	FeatCode    int32   `bson:"FEAT_CODE"`
+	HeightRoof float64 `bson:"HEIGHTROOF"`
+	FeatCode   int32   `bson:"FEAT_CODE"`
 	GroundElev int32   `bson:"GROUNDELEV"`
-	ShapeArea   float64 `bson:"SHAPE_AREA"`
+	ShapeArea  float64 `bson:"SHAPE_AREA"`
 	// SHAPE_LEN  float64
 	// BASE_BBL   int64
 	// MPLUTO_BBL int64
@@ -33,75 +33,24 @@ type Building struct {
 }
 
 var bsonMap = map[string]string{ // Built for easy lookup for bson tags
-	"Bin":         "BIN",
-	"ConstYear":   "CNSTRCT_YR",
-	"Name":        "NAME",
-	"HeightRoof":  "HEIGHTROOF",
-	"FeatCode":    "FEAT_CODE",
+	"Bin":        "BIN",
+	"ConstYear":  "CNSTRCT_YR",
+	"Name":       "NAME",
+	"HeightRoof": "HEIGHTROOF",
+	"FeatCode":   "FEAT_CODE",
 	"GroundElev": "GROUNDELEV",
-	"ShapeArea":   "SHAPE_AREA",
-}
-
-func BuildingByName(client *mongo.Client) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		collection := client.Database("topos").Collection("testCollection")
-		fmt.Println("collection: ", collection)
-		filter := bson.D{{"NAME", "Pheasant Aviary"}}
-		var result Building
-
-		err := collection.FindOne(context.TODO(), filter).Decode(&result)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Found a single document: %+v\n", result.FeatCode)
-		c.JSON(http.StatusOK, gin.H{
-			"msg": result.ShapeArea,
-		})
-	}
-}
-
-func BuildingByConstructionYear(client *mongo.Client) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx := context.TODO()
-		collection := client.Database("topos").Collection("testCollection")
-		filter := bson.D{{"CNSTRCT_YR", 2019}}
-		var result Building
-		// var result Trainer
-
-		cur, err := collection.Find(ctx, filter)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer cur.Close(ctx)
-		for cur.Next(ctx) {
-			fmt.Println("cur: ", cur)
-			err := cur.Decode(&result)
-			if err != nil {
-				errors.DatabaseError(c, err)
-				log.Panic(err)
-			}
-			fmt.Printf("Found document: %+v\n", result)
-		}
-		if err := cur.Err(); err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Printf("Found a single document: %+v\n", result.FeatCode)
-		c.JSON(http.StatusOK, gin.H{
-			"msg": result,
-		})
-	}
+	"ShapeArea":  "SHAPE_AREA",
 }
 
 func Intro() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ctx := context.TODO(),
 		c.JSON(http.StatusOK, gin.H{
-			"apiEndpoints":              "/buildings(?filterParams), /aggregates(?aggregationParam)",
+			"apiEndpoints":              "/buildings(?filterParams), /aggregate(?aggregationParam), /",
 			"filterParamsFormat":        "/buildings?<dataFeature1>=<somevalue>&<dataFeature2>=<some other value>& ...",
-			"aggregationParamsFormat":   "/aggregates?Field=<dataFeature>&AggBy=<Aggregation operator>",
+			"aggregationParamsFormat":   "/aggregate?Field=<dataFeature>&AggBy=<Aggregation operator>",
 			"filterParamsExamples":      "/buildings?ConstYear=1922&Name=AlphaHouse",
-			"aggregationParamsExamples": "/aggregates?Field=ShapeArea&AggBy=mean",
+			"aggregationParamsExamples": "/aggregate?Field=ShapeArea&AggBy=mean",
 			"aggregationOperators":      "mean, min, max",
 			"dataFeatures":              "Bin, ConstYear, Name, HeightRoof, FeatCode, GroundElev, ShapeArea",
 		})
