@@ -55,3 +55,6 @@ Web Server written in Go. MongoDB for serving data. Uses gin-gonic for webserver
 - Write tests
 - Insert, Delete, Update Operations
 
+### UPDATES
+
+- Added Postman collection that has a set of requests that can be used to test the application
