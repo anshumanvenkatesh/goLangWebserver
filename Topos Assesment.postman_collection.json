@@ -1,0 +1,139 @@
+{
+	"info": {
+		"_postman_id": "3ac63ea2-79d8-465b-92d3-8ff53e53e71e",
+		"name": "Topos Assesment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "buildingNames",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": ""
+				},
+				"description": "gives list of building names"
+			},
+			"response": []
+		},
+		{
+			"name": "Filter and Aggregation",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"filter\": {\n\t\t\"ConstYear\": 2019,\n\t\t\"FeatCode\": 2100\n\t},\n\t\"aggregate\": {\n\t\t\"Field\": \"GroundElev\",\n\t\t\"AggBy\": \"max\"\n\t}\n}"
+				},
+				"url": {
+					"raw": "localhost:8080/filtagg",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"filtagg"
+					]
+				},
+				"description": "Aggregating on a subset of data"
+			},
+			"response": []
+		},
+		{
+			"name": "Filtering",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/buildings?Name=Alpha%20House&ConstYear=1922",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"buildings"
+					],
+					"query": [
+						{
+							"key": "Name",
+							"value": "Alpha%20House"
+						},
+						{
+							"key": "ConstYear",
+							"value": "1922"
+						}
+					]
+				},
+				"description": "Basic filtering by query params"
+			},
+			"response": []
+		},
+		{
+			"name": "/",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": ""
+				},
+				"description": "Getting root url"
+			},
+			"response": []
+		},
+		{
+			"name": "Aggregation",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8080/aggregate?Field=ShapeArea&AggBy=min",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"aggregate"
+					],
+					"query": [
+						{
+							"key": "Field",
+							"value": "ShapeArea"
+						},
+						{
+							"key": "AggBy",
+							"value": "min"
+						}
+					]
+				},
+				"description": "Example query showing aggregation without filtering"
+			},
+			"response": []
+		}
+	]
+}

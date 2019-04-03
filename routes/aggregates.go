@@ -14,7 +14,7 @@ import (
 	"reflect"
 )
 
-type AggResult struct {
+type AggResult struct { // Type for Aggregation Result
 	ID    int64   `bson:"_id"`
 	Value float64 `bson:"value"`
 }
@@ -25,7 +25,7 @@ var aggOpMap = map[string]string{ // Mapping aggregation api values to mongo que
 	"max":  "$max",
 }
 
-var aggColMap = map[string]string{
+var aggColMap = map[string]string{ // Just a handy map from attribute name to actual DB names
 	"Bin":        "$BIN",
 	"ConstYear":  "$CNSTRCT_YR",
 	"Name":       "$NAME",
@@ -35,7 +35,7 @@ var aggColMap = map[string]string{
 	"ShapeArea":  "$SHAPE_AREA",
 }
 
-type AggQuery struct {
+type AggQuery struct { // Type for Aggregation Query
 	Field string
 	AggBy string
 }
@@ -132,6 +132,7 @@ func GetFilteredAggregatedValue(client *mongo.Client) gin.HandlerFunc {
 		qAgg := q.Aggregate
 		qFilter := q.Filter
 
+		// Checking if incorrect names / values are given
 		if aggOpMap[qAgg.AggBy] == "" || aggColMap[qAgg.Field] == "" {
 			errors.BadAggregate(c)
 			return
@@ -169,7 +170,7 @@ func GetFilteredAggregatedValue(client *mongo.Client) gin.HandlerFunc {
 				"meta":  validAgg,
 			})
 		}
-
+		// Prevent closing the connection too soon
 		defer cur.Close(ctx)
 		for cur.Next(ctx) {
 			err := cur.Decode(&aggResult)
@@ -192,7 +193,8 @@ func GetFilteredAggregatedValue(client *mongo.Client) gin.HandlerFunc {
 	}
 }
 
-func createAggQuery(q AggQuery) []bson.M {
+func createAggQuery(q AggQuery) []bson.M { // Generates an aggregation Query
+	// @TODO: Even the normal aggregate route should use this eventually
 	query := []bson.M{
 		bson.M{
 			"$group": bson.M{
