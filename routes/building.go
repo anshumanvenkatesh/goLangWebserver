@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"fmt"
+	"geoServer/errors"
 	"github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,7 +24,7 @@ type Building struct {
 	// DOITT_ID   int32
 	HeightRoof  float64 `bson:"HEIGHTROOF"`
 	FeatCode    int32   `bson:"FEAT_CODE"`
-	GroundLevel int32   `bson:"GROUNDELEV"`
+	GroundElev int32   `bson:"GROUNDELEV"`
 	ShapeArea   float64 `bson:"SHAPE_AREA"`
 	// SHAPE_LEN  float64
 	// BASE_BBL   int64
@@ -37,7 +38,7 @@ var bsonMap = map[string]string{ // Built for easy lookup for bson tags
 	"Name":        "NAME",
 	"HeightRoof":  "HEIGHTROOF",
 	"FeatCode":    "FEAT_CODE",
-	"GroundLevel": "GROUNDELEV",
+	"GroundElev": "GROUNDELEV",
 	"ShapeArea":   "SHAPE_AREA",
 }
 
@@ -47,7 +48,6 @@ func BuildingByName(client *mongo.Client) gin.HandlerFunc {
 		fmt.Println("collection: ", collection)
 		filter := bson.D{{"NAME", "Pheasant Aviary"}}
 		var result Building
-		// var result Trainer
 
 		err := collection.FindOne(context.TODO(), filter).Decode(&result)
 		if err != nil {
@@ -77,7 +77,8 @@ func BuildingByConstructionYear(client *mongo.Client) gin.HandlerFunc {
 			fmt.Println("cur: ", cur)
 			err := cur.Decode(&result)
 			if err != nil {
-				log.Fatal(err)
+				errors.DatabaseError(c, err)
+				log.Panic(err)
 			}
 			fmt.Printf("Found document: %+v\n", result)
 		}
@@ -92,10 +93,19 @@ func BuildingByConstructionYear(client *mongo.Client) gin.HandlerFunc {
 	}
 }
 
-func getTag(name string) string {
-	t := reflect.TypeOf(Building{})
-	x, _ := t.FieldByName(name)
-	return x.Tag.Get("bson")
+func Intro() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// ctx := context.TODO(),
+		c.JSON(http.StatusOK, gin.H{
+			"apiEndpoints":              "/buildings(?filterParams), /aggregates(?aggregationParam)",
+			"filterParamsFormat":        "/buildings?<dataFeature1>=<somevalue>&<dataFeature2>=<some other value>& ...",
+			"aggregationParamsFormat":   "/aggregates?Field=<dataFeature>&AggBy=<Aggregation operator>",
+			"filterParamsExamples":      "/buildings?ConstYear=1922&Name=AlphaHouse",
+			"aggregationParamsExamples": "/aggregates?Field=ShapeArea&AggBy=mean",
+			"aggregationOperators":      "mean, min, max",
+			"dataFeatures":              "Bin, ConstYear, Name, HeightRoof, FeatCode, GroundElev, ShapeArea",
+		})
+	}
 }
 
 func GetBuildingsData(client *mongo.Client) gin.HandlerFunc {
@@ -112,11 +122,10 @@ func GetBuildingsData(client *mongo.Client) gin.HandlerFunc {
 		query := bson.M{}
 
 		for k, v := range m {
-			// query[k] = v
 			fmt.Println("key: ", bsonMap[k])
 			fmt.Println("value: ", v)
 			// @TODO: Need better BindQuery mechanism to filter out optional params from query
-			if v != reflect.Zero(reflect.TypeOf(v)).Interface() { // Has a non 0 or "" value
+			if v != reflect.Zero(reflect.TypeOf(v)).Interface() { // Has a non 0 or "" value. Seriously Go??
 				query[bsonMap[k]] = v
 			}
 		}
@@ -126,6 +135,7 @@ func GetBuildingsData(client *mongo.Client) gin.HandlerFunc {
 		var results = []Building{}
 		cur, err := collection.Find(ctx, query)
 		if err != nil {
+			errors.DatabaseError(c, err)
 			log.Fatal(err)
 		}
 		defer cur.Close(ctx)

@@ -5,6 +5,7 @@ import (
 	// "command"
 	"context"
 	"fmt"
+	"geoServer/errors"
 	"geoServer/routes"
 	"github.com/gin-gonic/gin"
 	// "go.mongodb.org/mongo-driver/bson"
@@ -23,10 +24,10 @@ type Building struct {
 	// LSTMODDATE string
 	// LSTSTATYPE string
 	// DOITT_ID   int32
-	HeightRoof  float64 `bson:"HEIGHTROOF"`
-	FeatCode    int32   `bson:"FEAT_CODE"`
-	GroundLevel int32   `bson:"GROUNDELEV"`
-	ShapeArea   float64 `bson:"SHAPE_AREA"`
+	HeightRoof float64 `bson:"HEIGHTROOF"`
+	FeatCode   int32   `bson:"FEAT_CODE"`
+	GroundElev int32   `bson:"GROUNDELEV"`
+	ShapeArea  float64 `bson:"SHAPE_AREA"`
 	// SHAPE_LEN  float64
 	// BASE_BBL   int64
 	// MPLUTO_BBL int64
@@ -78,10 +79,13 @@ func main() {
 	// }
 	// fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
 
-	router.GET("/", routes.NotFound())
+	router.NoRoute(errors.NotFound())
 	router.GET("/buildings", routes.GetBuildingsData(client))
 	router.GET("/aggregate", routes.GetAggregatedValue(client))
+	router.POST("/filtagg", routes.GetFilteredAggregatedValue(client))
 	router.GET("/building", routes.BuildingByConstructionYear(client))
+	router.GET("/", routes.Intro())
+	router.GET("/help", routes.Intro())
 
 	router.Run()
 
