@@ -124,11 +124,11 @@ func GetFilteredAggregatedValue(client *mongo.Client) gin.HandlerFunc {
 		ctx := context.TODO()
 		collection := client.Database("topos").Collection("testCollection")
 
-		// var building Building
 		var q filAggQuery
 		if c.BindJSON(&q) == nil {
 			fmt.Println("url query: ", q)
 		}
+
 		qAgg := q.Aggregate
 		qFilter := q.Filter
 
@@ -172,7 +172,6 @@ func GetFilteredAggregatedValue(client *mongo.Client) gin.HandlerFunc {
 
 		defer cur.Close(ctx)
 		for cur.Next(ctx) {
-			fmt.Println("--------------cur: ", cur)
 			err := cur.Decode(&aggResult)
 			if err != nil {
 				c.JSON(http.StatusBadGateway, gin.H{
@@ -188,7 +187,7 @@ func GetFilteredAggregatedValue(client *mongo.Client) gin.HandlerFunc {
 			log.Panic(err)
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"meeesg": aggResult,
+			"msg": aggResult,
 		})
 	}
 }

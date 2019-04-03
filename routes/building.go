@@ -46,13 +46,33 @@ func Intro() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ctx := context.TODO(),
 		c.JSON(http.StatusOK, gin.H{
-			"apiEndpoints":              "/buildings(?filterParams), /aggregate(?aggregationParam), /",
+			"apiEndpoints":              "GET /buildings(?filterParams), GET /aggregate(?aggregationParam), POST /filtAgg",
 			"filterParamsFormat":        "/buildings?<dataFeature1>=<somevalue>&<dataFeature2>=<some other value>& ...",
-			"aggregationParamsFormat":   "/aggregate?Field=<dataFeature>&AggBy=<Aggregation operator>",
 			"filterParamsExamples":      "/buildings?ConstYear=1922&Name=AlphaHouse",
+			"aggregationParamsFormat":   "/aggregate?Field=<dataFeature>&AggBy=<Aggregation operator>",
 			"aggregationParamsExamples": "/aggregate?Field=ShapeArea&AggBy=mean",
 			"aggregationOperators":      "mean, min, max",
 			"dataFeatures":              "Bin, ConstYear, Name, HeightRoof, FeatCode, GroundElev, ShapeArea",
+			"filtAggBodyFormat": gin.H{
+				"filter": gin.H{
+					"<dataFeature1>": "<filter value>",
+					"<dataFeature2>": "<filter value>",
+				},
+				"aggregate": gin.H{
+					"Field": "<Data Field on which aggregation should happen>",
+					"AggBy": "<mean / min / max>",
+				},
+			},
+			"filtAggBodyExample": gin.H{
+				"filter": gin.H{
+					"ConstYear": 2019,
+					"FeatCode":  2100,
+				},
+				"aggregate": gin.H{
+					"Field": "GroundElev",
+					"AggBy": "max>",
+				},
+			},
 		})
 	}
 }
@@ -79,7 +99,7 @@ func GetBuildingsData(client *mongo.Client) gin.HandlerFunc {
 			}
 		}
 
-		fmt.Println("query: ", query)
+		fmt.Println("query: ", query) // Just checking if the query got generated correctly
 		var result Building
 		var results = []Building{}
 		cur, err := collection.Find(ctx, query)

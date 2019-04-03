@@ -15,24 +15,24 @@ import (
 	// "gopkg.in/mgo.v2/bson"
 )
 
-type Building struct {
-	// _id
-	// the_geom   string
-	Bin       int32  `bson:"BIN"`
-	ConstYear int32  `bson:"CNSTRCT_YR"`
-	Name      string `bson:"NAME"`
-	// LSTMODDATE string
-	// LSTSTATYPE string
-	// DOITT_ID   int32
-	HeightRoof float64 `bson:"HEIGHTROOF"`
-	FeatCode   int32   `bson:"FEAT_CODE"`
-	GroundElev int32   `bson:"GROUNDELEV"`
-	ShapeArea  float64 `bson:"SHAPE_AREA"`
-	// SHAPE_LEN  float64
-	// BASE_BBL   int64
-	// MPLUTO_BBL int64
-	// GEOMSOURCE string
-}
+// type Building struct {
+// 	// _id
+// 	// the_geom   string
+// 	Bin       int32  `bson:"BIN"`
+// 	ConstYear int32  `bson:"CNSTRCT_YR"`
+// 	Name      string `bson:"NAME"`
+// 	// LSTMODDATE string
+// 	// LSTSTATYPE string
+// 	// DOITT_ID   int32
+// 	HeightRoof float64 `bson:"HEIGHTROOF"`
+// 	FeatCode   int32   `bson:"FEAT_CODE"`
+// 	GroundElev int32   `bson:"GROUNDELEV"`
+// 	ShapeArea  float64 `bson:"SHAPE_AREA"`
+// 	// SHAPE_LEN  float64
+// 	// BASE_BBL   int64
+// 	// MPLUTO_BBL int64
+// 	// GEOMSOURCE string
+// }
 
 func main() {
 	router := gin.Default()
@@ -83,7 +83,6 @@ func main() {
 	router.GET("/buildings", routes.GetBuildingsData(client))
 	router.GET("/aggregate", routes.GetAggregatedValue(client))
 	router.POST("/filtagg", routes.GetFilteredAggregatedValue(client))
-	router.GET("/building", routes.BuildingByConstructionYear(client))
 	router.GET("/", routes.Intro())
 	router.GET("/help", routes.Intro())
 
